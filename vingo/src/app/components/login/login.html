@@ -1,0 +1,126 @@
+<div class="min-h-screen relative flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+  <!-- Background com gradiente igual ao hero -->
+  <div class="absolute inset-0" style="background: linear-gradient(to bottom right, #07532F, #16201E);"></div>
+  <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 40px 40px;"></div>
+  
+  <!-- Círculos decorativos -->
+  <div class="absolute top-20 left-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" style="background-color: #13E785;"></div>
+  <div class="absolute top-40 right-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" style="background-color: #13E785;"></div>
+  
+  <div class="max-w-md w-full relative z-10">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Bem-vindo!</h1>
+      <p class="text-gray-200 text-lg">Entre na sua conta</p>
+    </div>
+
+    <!-- Card do Formulário -->
+    <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
+      @if (error) {
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg">
+          <div class="flex items-center">
+            <lucide-icon [img]="AlertCircle" class="text-red-500 mr-3" [size]="24"></lucide-icon>
+            <p class="text-red-800">{{ error }}</p>
+          </div>
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Email
+            </label>
+            <div class="relative">
+              <lucide-icon [img]="Mail" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" [size]="20"></lucide-icon>
+              <input
+                type="email"
+                [(ngModel)]="email"
+                name="email"
+                required
+                class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                placeholder="seu@email.com"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Senha
+            </label>
+            <div class="relative">
+              <lucide-icon [img]="Lock" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" [size]="20"></lucide-icon>
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                [(ngModel)]="password"
+                name="password"
+                required
+                class="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                placeholder="Sua senha"
+              />
+              <button
+                type="button"
+                (click)="showPassword = !showPassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                <lucide-icon [img]="showPassword ? EyeOff : Eye" [size]="20"></lucide-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="loading || !loginForm.valid"
+          class="w-full mt-6 text-white py-4 rounded-lg font-semibold text-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          style="background-color: #13E785;"
+        >
+          <span *ngIf="!loading" class="flex items-center justify-center">
+            <lucide-icon [img]="LogIn" class="mr-2" [size]="20"></lucide-icon>
+            Entrar
+          </span>
+          <span *ngIf="loading" class="flex items-center justify-center">
+            <lucide-icon [img]="Loader2" class="mr-2 animate-spin" [size]="20"></lucide-icon>
+            Entrando...
+          </span>
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-300"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-white text-gray-500">ou</span>
+        </div>
+      </div>
+
+      <!-- Link para Cadastro -->
+      <div class="text-center">
+        <p class="text-gray-700">
+          Não tem uma conta?
+          <button type="button" (click)="goToRegister()" class="font-semibold ml-1 hover:underline" style="color: #13E785;">
+            Cadastre-se
+          </button>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+  
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+  
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+</style>

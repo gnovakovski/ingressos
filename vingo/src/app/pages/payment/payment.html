@@ -1,0 +1,93 @@
+<div class="min-h-screen relative overflow-hidden py-24">
+  <!-- Background -->
+  <div class="absolute inset-0" style="background: linear-gradient(to bottom right, #07532F, #16201E);"></div>
+  <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 40px 40px;"></div>
+  
+  <div class="container mx-auto px-6 max-w-4xl relative z-10">
+    <div class="mb-8 text-center">
+      <h1 class="text-4xl font-bold text-white mb-2">Pagamento</h1>
+      <p class="text-gray-300">{{ eventTitle }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Resumo do Pedido -->
+      <div class="lg:col-span-2">
+        <div class="bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50 mb-6">
+          <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+            <lucide-icon [img]="ShoppingCart" class="mr-2" style="color: #10B981;" [size]="24"></lucide-icon>
+            Resumo do Pedido
+          </h3>
+
+          <div class="space-y-3">
+            @for (ticket of selectedTickets; track ticket.id) {
+              <div class="flex justify-between items-center py-3 border-b border-gray-700">
+                <div>
+                  <p class="text-white font-semibold">{{ ticket.ticketTypeName }}</p>
+                  <p class="text-gray-400 text-sm">{{ ticket.name }}</p>
+                </div>
+                <p class="text-white font-bold">R$ {{ ticket.price.toFixed(2) }}</p>
+              </div>
+            }
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-gray-700">
+            <div class="flex justify-between items-center">
+              <span class="text-xl font-bold text-white">Total</span>
+              <span class="text-3xl font-bold" style="color: #10B981;">R$ {{ totalPrice.toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Área de Integração do Gateway -->
+        <div class="bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50">
+          <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+            <lucide-icon [img]="CreditCard" class="mr-2" style="color: #10B981;" [size]="24"></lucide-icon>
+            Método de Pagamento
+          </h3>
+
+          <div class="bg-gray-700/50 rounded-xl p-8 text-center">
+            <lucide-icon [img]="CreditCard" class="mx-auto mb-4 text-gray-400" [size]="64"></lucide-icon>
+            <p class="text-gray-300 mb-2">Gateway de Pagamento</p>
+            <p class="text-gray-400 text-sm mb-6">
+              Aqui será integrado o gateway de pagamento<br>
+              (Stripe, Mercado Pago, PagSeguro, etc)
+            </p>
+
+            <!-- Botão Temporário para Simular Pagamento -->
+            <button
+              (click)="processPayment()"
+              [disabled]="processing"
+              class="text-white px-8 py-3 rounded-lg font-semibold transition hover:opacity-90 disabled:opacity-50"
+              style="background-color: #10B981;"
+            >
+              @if (processing) {
+                <span class="flex items-center justify-center">
+                  <lucide-icon [img]="Loader2" class="mr-2 animate-spin" [size]="20"></lucide-icon>
+                  Processando...
+                </span>
+              } @else {
+                <span class="flex items-center justify-center">
+                  <lucide-icon [img]="CheckCircle" class="mr-2" [size]="20"></lucide-icon>
+                  Simular Pagamento
+                </span>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informações de Segurança -->
+      <div class="lg:col-span-1">
+        <div class="bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50">
+          <h3 class="text-lg font-bold text-white mb-4">Pagamento Seguro</h3>
+          <div class="space-y-3 text-sm text-gray-300">
+            <p>✓ Ambiente 100% seguro</p>
+            <p>✓ Dados criptografados</p>
+            <p>✓ Certificado SSL</p>
+            <p>✓ Proteção contra fraudes</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

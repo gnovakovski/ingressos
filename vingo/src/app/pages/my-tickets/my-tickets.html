@@ -1,0 +1,121 @@
+<div class="min-h-screen relative py-20 px-6 overflow-hidden">
+  <!-- Background com gradiente -->
+  <div class="absolute inset-0" style="background: linear-gradient(to bottom right, #07532F, #16201E);"></div>
+  <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 40px 40px;"></div>
+  
+  <!-- Círculos decorativos -->
+  <div class="absolute top-20 left-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" style="background-color: #10B981;"></div>
+  <div class="absolute top-40 right-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" style="background-color: #10B981;"></div>
+  
+  <div class="container mx-auto relative z-10 max-w-6xl">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Meus Ingressos</h1>
+      <p class="text-gray-200 text-lg">Gerencie todos os seus ingressos em um só lugar</p>
+    </div>
+
+    @if (loading) {
+      <div class="flex items-center justify-center py-20">
+        <div class="text-center">
+          <lucide-icon [img]="Loader2" class="animate-spin text-white mx-auto mb-4" [size]="48"></lucide-icon>
+          <p class="text-white text-lg">Carregando seus ingressos...</p>
+        </div>
+      </div>
+    }
+
+    @if (!loading && tickets.length === 0) {
+      <div class="bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl p-12 text-center border border-gray-700/50">
+        <lucide-icon [img]="TicketX" class="mx-auto mb-4" style="color: #10B981;" [size]="64"></lucide-icon>
+        <h2 class="text-2xl font-bold text-white mb-2">Nenhum ingresso encontrado</h2>
+        <p class="text-gray-300 mb-6">Você ainda não comprou nenhum ingresso. Que tal explorar nossos eventos?</p>
+        <button 
+          (click)="navigateToHome()"
+          class="text-white px-8 py-3 rounded-lg font-semibold transition hover:opacity-90"
+          style="background-color: #10B981;"
+        >
+          Ver Eventos Disponíveis
+        </button>
+      </div>
+    }
+
+    @if (!loading && tickets.length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (ticket of tickets; track ticket.id) {
+          <div class="bg-gray-800/90 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden border border-gray-700/50 hover:scale-105 transition transform">
+            <!-- Header do Card -->
+            <div class="relative h-32 bg-cover bg-center" [style.background-image]="'url(' + ticket.eventImage + ')'">
+              <div class="absolute inset-0" style="background: linear-gradient(to bottom right, rgba(7, 83, 47, 0.8), rgba(22, 32, 30, 0.8));"></div>
+              <div class="relative p-4 h-full flex flex-col justify-between">
+                <div class="flex justify-between items-start">
+                  <span class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-semibold">
+                    {{ ticket.quantity }}x Ingresso{{ ticket.quantity > 1 ? 's' : '' }}
+                  </span>
+                  <span class="px-3 py-1 rounded-full text-xs font-bold" [ngClass]="getStatusClass(ticket.eventDate)">
+                    {{ getStatusText(ticket.eventDate) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Conteúdo do Card -->
+            <div class="p-6">
+              <h3 class="text-xl font-bold mb-2 text-white">{{ ticket.eventTitle }}</h3>
+              
+              <div class="space-y-2 mb-4">
+                <div class="flex items-center text-gray-300 text-sm">
+                  <lucide-icon [img]="Calendar" class="mr-2" [size]="16"></lucide-icon>
+                  <span>{{ formatDate(ticket.eventDate) }}</span>
+                </div>
+                <div class="flex items-center text-gray-300 text-sm">
+                  <lucide-icon [img]="MapPin" class="mr-2" [size]="16"></lucide-icon>
+                  <span>{{ ticket.eventLocation }}</span>
+                </div>
+                <div class="flex items-center text-gray-300 text-sm">
+                  <lucide-icon [img]="User" class="mr-2" [size]="16"></lucide-icon>
+                  <span>{{ ticket.buyerName }}</span>
+                </div>
+              </div>
+
+              <!-- Preço -->
+              <div class="border-t border-gray-700 pt-4 flex justify-between items-center">
+                <div>
+                  <p class="text-xs text-gray-400">Total Pago</p>
+                  <p class="text-2xl font-bold" style="color: #10B981;">R$ {{ ticket.totalPrice.toFixed(2) }}</p>
+                </div>
+                <button 
+                  class="text-white px-4 py-2 rounded-lg font-semibold text-sm transition hover:opacity-90"
+                  style="background-color: #10B981;"
+                >
+                  Ver Detalhes
+                </button>
+              </div>
+
+              <!-- Data da Compra -->
+              <div class="mt-4 pt-4 border-t border-gray-700">
+                <p class="text-xs text-gray-400">
+                  Comprado em {{ formatDate(ticket.purchaseDate) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<style>
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+  
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+  
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+</style>

@@ -1,0 +1,307 @@
+<div class="min-h-screen relative py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+  <!-- Background com gradiente igual ao hero -->
+  <div class="absolute inset-0" style="background: linear-gradient(to bottom right, #07532F, #16201E);"></div>
+  <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 40px 40px;"></div>
+  
+  <!-- Círculos decorativos -->
+  <div class="absolute top-20 left-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" style="background-color: #13E785;"></div>
+  <div class="absolute top-40 right-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" style="background-color: #13E785;"></div>
+  
+  <div class="max-w-4xl mx-auto relative z-10">
+    <!-- Header -->
+    <div class="text-center mb-8" style="margin-top: 50px;">
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Criar Conta</h1>
+      <p class="text-gray-200 text-lg">Junte-se a nós e garanta seus ingressos!</p>
+    </div>
+
+    <!-- Card do Formulário -->
+    <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 border border-white/20">
+      @if (success) {
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-r-lg">
+          <div class="flex items-center">
+            <lucide-icon [img]="CheckCircle" class="text-green-500 mr-3" [size]="24"></lucide-icon>
+            <div>
+              <p class="text-green-800 font-semibold">Cadastro realizado com sucesso!</p>
+              <p class="text-green-700 text-sm">Você já pode fazer login.</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (error) {
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-lg">
+          <div class="flex items-center">
+            <lucide-icon [img]="AlertCircle" class="text-red-500 mr-3" [size]="24"></lucide-icon>
+            <p class="text-red-800">{{ error }}</p>
+          </div>
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+        <!-- Dados Pessoais -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold mb-4 flex items-center" style="color: #07532F;">
+            <lucide-icon [img]="User" class="mr-2" style="color: #13E785;" [size]="24"></lucide-icon>
+            Dados Pessoais
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nome <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="formData.nome"
+                name="nome"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                style="focus:ring-color: #13E785;"
+                placeholder="Seu nome"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Sobrenome <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="formData.sobrenome"
+                name="sobrenome"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                placeholder="Seu sobrenome"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                CPF <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="formData.cpf"
+                name="cpf"
+                required
+                maxlength="14"
+                (input)="formatCpf($event)"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                placeholder="000.000.000-00"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Data de Nascimento <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                [(ngModel)]="formData.dataNascimento"
+                name="dataNascimento"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Contato -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold mb-4 flex items-center" style="color: #07532F;">
+            <lucide-icon [img]="Mail" class="mr-2" style="color: #13E785;" [size]="24"></lucide-icon>
+            Contato e Acesso
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Email <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                [(ngModel)]="formData.email"
+                name="email"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                placeholder="seu@email.com"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Senha <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  [type]="showPassword ? 'text' : 'password'"
+                  [(ngModel)]="formData.password"
+                  name="password"
+                  required
+                  minlength="6"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition pr-12"
+                  placeholder="Mínimo 6 caracteres"
+                />
+                <button
+                  type="button"
+                  (click)="showPassword = !showPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  <lucide-icon [img]="showPassword ? EyeOff : Eye" [size]="20"></lucide-icon>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Confirmar Senha <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  [type]="showConfirmPassword ? 'text' : 'password'"
+                  [(ngModel)]="formData.confirmPassword"
+                  name="confirmPassword"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition pr-12"
+                  placeholder="Repita a senha"
+                />
+                <button
+                  type="button"
+                  (click)="showConfirmPassword = !showConfirmPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  <lucide-icon [img]="showConfirmPassword ? EyeOff : Eye" [size]="20"></lucide-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Endereço -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold mb-4 flex items-center" style="color: #07532F;">
+            <lucide-icon [img]="MapPin" class="mr-2" style="color: #13E785;" [size]="24"></lucide-icon>
+            Endereço
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Rua <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="formData.endereco.rua"
+                name="rua"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                placeholder="Nome da rua"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Número <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="formData.endereco.numero"
+                name="numero"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                placeholder="123"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Complemento
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="formData.endereco.complemento"
+                name="complemento"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                placeholder="Apto, bloco, etc"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Cidade <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="formData.endereco.cidade"
+                name="cidade"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                placeholder="Sua cidade"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Estado <span class="text-red-500">*</span>
+              </label>
+              <select
+                [(ngModel)]="formData.endereco.estado"
+                name="estado"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+              >
+                <option value="">Selecione</option>
+                <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="flex flex-col sm:flex-row gap-4">
+          <button
+            type="submit"
+            [disabled]="loading || !registerForm.valid"
+            class="flex-1 text-white py-4 rounded-lg font-semibold text-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            style="background-color: #13E785;"
+          >
+            <span *ngIf="!loading" class="flex items-center justify-center">
+              <lucide-icon [img]="UserPlus" class="mr-2" [size]="20"></lucide-icon>
+              Criar Conta
+            </span>
+            <span *ngIf="loading" class="flex items-center justify-center">
+              <lucide-icon [img]="Loader2" class="mr-2 animate-spin" [size]="20"></lucide-icon>
+              Cadastrando...
+            </span>
+          </button>
+        </div>
+
+        <!-- Link para Login -->
+        <div class="mt-6 text-center">
+          <p class="text-gray-700">
+            Já tem uma conta?
+            <button type="button" (click)="goToLogin()" class="font-semibold ml-1 hover:underline" style="color: #13E785;">
+              Faça login
+            </button>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+  
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+  
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+</style>

@@ -1,0 +1,87 @@
+<header class="fixed w-full top-0 z-50 bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-white/10">
+  <nav class="px-6 py-4">
+    <div class="flex items-center gap-6">
+      <!-- Logo à esquerda -->
+      <div class="flex items-center space-x-2 cursor-pointer flex-shrink-0" (click)="navigateToHome()">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: #10B981;">
+          <span class="text-white font-bold text-xl">V</span>
+        </div>
+        <span class="text-2xl font-bold text-white">Vingo</span>
+      </div>
+      
+      <!-- Busca no centro (flex-grow para ocupar espaço disponível) -->
+      <div class="flex-grow flex justify-center">
+        <div class="relative w-full max-w-2xl">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <lucide-icon [img]="Search" class="text-gray-400" [size]="20"></lucide-icon>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="onSearch()"
+            placeholder="Buscar eventos por nome, local ou tipo..."
+            class="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition"
+            style="focus:ring-color: #10B981;"
+          />
+          @if (searchQuery) {
+            <button
+              (click)="clearSearch()"
+              class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-white"
+            >
+              <lucide-icon [img]="X" [size]="20"></lucide-icon>
+            </button>
+          }
+        </div>
+      </div>
+      
+      <!-- Ações à direita (mesma largura que o logo para balancear) -->
+      <div class="flex items-center space-x-4 flex-shrink-0">
+        @if (!isLoggedIn) {
+          <button 
+            (click)="navigateToLogin()"
+            class="text-gray-300 hover:text-white transition whitespace-nowrap"
+          >
+            Entrar
+          </button>
+          <button 
+            (click)="navigateToRegister()"
+            class="text-white px-6 py-2 rounded-lg transition hover:opacity-90 whitespace-nowrap" 
+            style="background-color: #10B981;"
+          >
+            Cadastrar
+          </button>
+        } @else {
+          <div class="flex items-center space-x-4">
+            <!-- Nome do usuário com ícone -->
+            <div class="flex items-center space-x-2 text-gray-300">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: #10B981;">
+                <lucide-icon [img]="User" [size]="18" class="text-white"></lucide-icon>
+              </div>
+              <span class="hidden lg:inline font-medium whitespace-nowrap">{{ userName }}</span>
+            </div>
+            
+            <!-- Botão Meus Ingressos -->
+            <button 
+              (click)="navigateToMyTickets()"
+              class="hidden md:flex items-center space-x-2 text-white px-4 py-2 rounded-lg transition hover:opacity-90 whitespace-nowrap"
+              style="background-color: #10B981;"
+            >
+              <lucide-icon [img]="Ticket" [size]="18"></lucide-icon>
+              <span class="hidden lg:inline">Meus Ingressos</span>
+            </button>
+            
+            <!-- Botão Sair -->
+            <button 
+              (click)="logout()"
+              class="flex items-center space-x-2 text-gray-300 hover:text-white transition"
+              title="Sair"
+            >
+              <lucide-icon [img]="LogOut" [size]="20"></lucide-icon>
+              <span class="hidden lg:inline">Sair</span>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </nav>
+</header>
