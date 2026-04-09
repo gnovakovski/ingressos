@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Calendar, MapPin, User, Ticket, TicketX, Loader2 } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
-import { FirebaseService } from '../../services/firebase.service';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { db } from '../../services/firebase.config';
 
 interface TicketWithEvent {
   id: string;
@@ -39,7 +40,6 @@ export class MyTicketsComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private firebaseService: FirebaseService,
     private router: Router
   ) {}
 
@@ -54,47 +54,60 @@ export class MyTicketsComponent implements OnInit {
 
   async loadTickets() {
     try {
-      // Por enquanto, vamos usar dados mockados já que não temos compras reais ainda
-      // Quando integrar com Firebase, descomentar o código abaixo:
-      
-      /*
-      const userEmail = this.authService.currentUser?.email;
-      if (userEmail) {
-        const allTickets = await this.firebaseService.getTicketsByEmail(userEmail);
-        // Buscar dados dos eventos para cada ticket
-        this.tickets = await Promise.all(
-          allTickets.map(async (ticket) => {
-            const event = await this.firebaseService.getEventById(ticket.eventId);
-            return {
-              ...ticket,
-              eventTitle: event?.title || 'Evento',
-              eventDate: event?.date || new Date(),
-              eventLocation: event?.location || 'Local',
-              eventImage: event?.imageUrl || 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80'
-            };
-          })
-        );
-      }
-      */
+      const user = this.authService.currentUser;
+      if (!user) return;
 
-      // Dados mockados para demonstração
-      this.tickets = this.getMockTickets();
+      // Buscar compras do usuário no Firestore
+      const purchasesRef = collection(db, 'purchases');
+      const q = query(
+        purchasesRef,
+        where('userId', '==', user.uid),
+        orderBy('purchaseDate', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      
+      this.tickets = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          eventId: data['eventId'] || '',
+          eventTitle: data['eventTitle'] || 'Evento',
+          eventDate: data['eventDate']?.toDate() || new Date(),
+          eventLocation: data['eventLocation'] || 'Local não especificado',
+          eventImage: data['eventImage'] || 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80',
+          buyerName: data['buyerName'] || user.displayName || 'Usuário',
+          buyerEmail: data['buyerEmail'] || user.email || '',
+          quantity: data['quantity'] || 0,
+          totalPrice: data['totalPrice'] || 0,
+          purchaseDate: data['purchaseDate']?.toDate() || new Date()
+        };
+      });
+
+      // Se não houver compras reais, mostrar dados de exemplo
+      if (this.tickets.length === 0) {
+        this.tickets = this.getMockTickets();
+      }
       
     } catch (error) {
       console.error('Erro ao carregar ingressos:', error);
-      this.tickets = [];
+      // Em caso de erro, mostrar dados de exemplo
+      this.tickets = this.getMockTickets();
     } finally {
       this.loading = false;
     }
   }
 
   getMockTickets(): TicketWithEvent[] {
-    const userEmail = this.authService.currentUser?.email || '';
-    const userName = this.authService.currentUser?.displayName || 'Usuário';
+    const user = this.authService.currentUser;
+    if (!user) return [];
+
+    const userName = user.displayName || 'Usuário';
+    const userEmail = user.email || '';
 
     return [
       {
-        id: '1',
+        id: 'mock-1',
         eventId: '1',
         eventTitle: 'Festival Eletrônica 2026',
         eventDate: new Date('2026-05-15'),
@@ -107,7 +120,7 @@ export class MyTicketsComponent implements OnInit {
         purchaseDate: new Date('2026-04-01')
       },
       {
-        id: '2',
+        id: 'mock-2',
         eventId: '2',
         eventTitle: 'Rock in Concert',
         eventDate: new Date('2026-05-22'),

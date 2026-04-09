@@ -1,4 +1,4 @@
-<section class="relative h-[600px] overflow-hidden bg-gray-900 mt-[72px]">
+<section class="relative h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden bg-gray-900 mt-[72px]">
   <!-- Slides -->
   <div class="relative h-full">
     @for (event of featuredEvents; track event.id; let i = $index) {
@@ -11,51 +11,51 @@
         <!-- Imagem de fundo -->
         <div class="absolute inset-0 bg-cover bg-center" [style.background-image]="'url(' + event.imageUrl + ')'">
           <!-- Overlay escuro -->
-          <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40"></div>
         </div>
 
         <!-- Conteúdo -->
-        <div class="container mx-auto px-6 h-full relative z-10">
+        <div class="container mx-auto px-4 md:px-6 h-full relative z-10">
           <div class="flex items-center h-full">
-            <div class="max-w-2xl space-y-6">
+            <div class="max-w-2xl space-y-3 md:space-y-6">
               <!-- Badge de categoria -->
               <div class="inline-block">
-                <span class="px-4 py-2 text-white text-sm font-semibold rounded-lg" style="background-color: #13E785;">
+                <span class="px-3 md:px-4 py-1 md:py-2 text-white text-xs md:text-sm font-semibold rounded-lg" style="background-color: #13E785;">
                   {{ event.category }}
                 </span>
               </div>
 
               <!-- Título -->
-              <h1 class="text-5xl md:text-6xl font-bold text-white leading-tight">
+              <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                 {{ event.title }}
               </h1>
 
               <!-- Subtítulo -->
-              <p class="text-xl md:text-2xl text-gray-200">
+              <p class="text-base md:text-xl lg:text-2xl text-gray-200">
                 {{ event.subtitle }}
               </p>
 
               <!-- Informações -->
-              <div class="flex flex-col sm:flex-row gap-4 text-white">
+              <div class="flex flex-col sm:flex-row gap-3 md:gap-4 text-white text-sm md:text-base">
                 <div class="flex items-center space-x-2">
-                  <lucide-icon [img]="Calendar" [size]="20"></lucide-icon>
+                  <lucide-icon [img]="Calendar" [size]="16" [attr.md-size]="20"></lucide-icon>
                   <span>{{ event.date }}</span>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <lucide-icon [img]="MapPin" [size]="20"></lucide-icon>
+                  <lucide-icon [img]="MapPin" [size]="16" [attr.md-size]="20"></lucide-icon>
                   <span>{{ event.location }}</span>
                 </div>
               </div>
 
               <!-- Preço e botão -->
-              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-4">
+              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 pt-2 md:pt-4">
                 <div class="text-white">
-                  <p class="text-sm text-gray-300">Ingressos</p>
-                  <p class="text-2xl font-bold">{{ event.price }}</p>
+                  <p class="text-xs md:text-sm text-gray-300">Ingressos</p>
+                  <p class="text-xl md:text-2xl font-bold">{{ event.price }}</p>
                 </div>
-                <button class="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-2 rounded-lg font-semibold transition flex items-center space-x-2 border border-white/30 shadow-xl">
+                <button class="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-4 md:px-6 py-2 rounded-lg font-semibold transition flex items-center space-x-2 border border-white/30 shadow-xl text-sm md:text-base">
                   <span>Ver Mais</span>
-                  <lucide-icon [img]="ArrowRight" [size]="18"></lucide-icon>
+                  <lucide-icon [img]="ArrowRight" [size]="16" [attr.md-size]="18"></lucide-icon>
                 </button>
               </div>
             </div>
@@ -65,30 +65,31 @@
     }
   </div>
 
-  <!-- Botões de navegação -->
+  <!-- Botões de navegação (ocultos em mobile) -->
   <button 
     (click)="prevSlide()"
-    class="absolute left-6 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white p-3 rounded-full transition border border-white/20">
-    <lucide-icon [img]="ChevronLeft" [size]="24"></lucide-icon>
+    class="hidden md:block absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white p-2 md:p-3 rounded-full transition border border-white/20">
+    <lucide-icon [img]="ChevronLeft" [size]="20" [attr.md-size]="24"></lucide-icon>
   </button>
   
   <button 
     (click)="nextSlide()"
-    class="absolute right-6 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white p-3 rounded-full transition border border-white/20">
-    <lucide-icon [img]="ChevronRight" [size]="24"></lucide-icon>
+    class="hidden md:block absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white p-2 md:p-3 rounded-full transition border border-white/20">
+    <lucide-icon [img]="ChevronRight" [size]="20" [attr.md-size]="24"></lucide-icon>
   </button>
 
   <!-- Indicadores -->
-  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex space-x-3">
+  <div class="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-20 flex space-x-2 md:space-x-3">
     @for (event of featuredEvents; track event.id; let i = $index) {
       <button
         (click)="goToSlide(i)"
-        class="transition-all duration-300"
-        [class.w-12]="currentSlide === i"
-        [class.w-3]="currentSlide !== i"
+        class="transition-all duration-300 h-2 md:h-3 rounded-full"
+        [class.w-8]="currentSlide === i"
+        [class.md:w-12]="currentSlide === i"
+        [class.w-2]="currentSlide !== i"
+        [class.md:w-3]="currentSlide !== i"
         [class.bg-white]="currentSlide === i"
-        [class.bg-white/40]="currentSlide !== i"
-        class="h-3 rounded-full">
+        [class.bg-white/40]="currentSlide !== i">
       </button>
     }
   </div>

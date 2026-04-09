@@ -1,69 +1,71 @@
-<section id="eventos" class="py-20 px-6 bg-gradient-to-b from-gray-900 to-gray-800">
+<section id="eventos" class="py-12 md:py-20 px-4 md:px-6 bg-gradient-to-b from-gray-900 to-gray-800">
   <div class="container mx-auto">
-    <div class="text-center mb-12">
-      <h2 class="text-4xl md:text-5xl font-bold mb-4 text-white">
+    <div class="text-center mb-8 md:mb-12">
+      <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white">
         Eventos em
         <span style="color: #13E785;">
           Destaque
         </span>
       </h2>
-      <p class="text-xl text-gray-300">Descubra experiências incríveis acontecendo agora</p>
+      <p class="text-base md:text-xl text-gray-300">Descubra experiências incríveis acontecendo agora</p>
     </div>
 
-    <div class="flex justify-center mb-8 space-x-4 flex-wrap gap-2">
-      <button class="px-6 py-2 rounded-lg text-white font-semibold transition" style="background-color: #13E785;">
-        Todos
-      </button>
-      <button class="px-6 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition">
-        Música
-      </button>
-      <button class="px-6 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition">
-        Festas
-      </button>
-      <button class="px-6 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition">
-        Shows
-      </button>
-      <button class="px-6 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition">
-        Tecnologia
-      </button>
+    <div class="flex justify-center mb-6 md:mb-8 overflow-x-auto pb-2">
+      <div class="flex space-x-2 md:space-x-4 min-w-max px-2">
+        <button class="px-4 md:px-6 py-2 rounded-lg text-white font-semibold transition text-sm md:text-base whitespace-nowrap" style="background-color: #13E785;">
+          Todos
+        </button>
+        <button class="px-4 md:px-6 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition text-sm md:text-base whitespace-nowrap">
+          Música
+        </button>
+        <button class="px-4 md:px-6 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition text-sm md:text-base whitespace-nowrap">
+          Festas
+        </button>
+        <button class="px-4 md:px-6 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition text-sm md:text-base whitespace-nowrap">
+          Shows
+        </button>
+        <button class="px-4 md:px-6 py-2 rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition text-sm md:text-base whitespace-nowrap">
+          Tecnologia
+        </button>
+      </div>
     </div>
 
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
       @for (event of events; track event.id) {
         <div class="group cursor-pointer" (click)="navigateToEvent(event.id)">
           <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-white/5 backdrop-blur-sm border border-white/10">
             <!-- Imagem de fundo -->
-            <div class="h-64 relative bg-cover bg-center" [style.background-image]="'url(' + event.imageUrl + ')'">
+            <div class="h-48 md:h-64 relative bg-cover bg-center" [style.background-image]="'url(' + event.imageUrl + ')'">
               <!-- Overlay com gradiente -->
               <div class="absolute inset-0 bg-gradient-to-br {{ event.gradient }} opacity-60"></div>
               <!-- Ícone centralizado -->
               <div class="absolute inset-0 flex items-center justify-center">
-                <div class="bg-white/20 backdrop-blur-sm rounded-full p-6">
-                  <lucide-icon [img]="event.icon" class="text-white" [size]="48" [strokeWidth]="1.5"></lucide-icon>
+                <div class="bg-white/20 backdrop-blur-sm rounded-full p-4 md:p-6">
+                  <lucide-icon [img]="event.icon" class="text-white" [size]="36" [attr.md-size]="48" [strokeWidth]="1.5"></lucide-icon>
                 </div>
               </div>
             </div>
-            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
-              <span class="text-sm font-semibold text-purple-600">{{ event.price }}</span>
+            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 md:px-3 py-1 rounded-full">
+              <span class="text-xs md:text-sm font-semibold text-purple-600">{{ event.price }}</span>
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent"></div>
-            <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+            <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white">
               <div class="flex items-center space-x-2 mb-2">
-                <span class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs">{{ event.category }}</span>
+                <span class="px-2 md:px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs">{{ event.category }}</span>
               </div>
-              <h3 class="text-2xl font-bold mb-2">{{ event.title }}</h3>
-              <div class="flex items-center space-x-4 text-sm mb-3">
+              <h3 class="text-xl md:text-2xl font-bold mb-2">{{ event.title }}</h3>
+              <div class="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm mb-3">
                 <div class="flex items-center space-x-1">
-                  <lucide-icon [img]="Calendar" [size]="16"></lucide-icon>
+                  <lucide-icon [img]="Calendar" [size]="14" [attr.md-size]="16"></lucide-icon>
                   <span>{{ event.date }}</span>
                 </div>
                 <div class="flex items-center space-x-1">
-                  <lucide-icon [img]="MapPin" [size]="16"></lucide-icon>
+                  <lucide-icon [img]="MapPin" [size]="14" [attr.md-size]="16"></lucide-icon>
                   <span>{{ event.location }}</span>
                 </div>
               </div>
-              <button class="w-full bg-white/20 backdrop-blur-md hover:bg-white/30 text-white py-2 rounded-lg font-semibold transition flex items-center justify-center space-x-2 border border-white/30 shadow-lg">
-                <lucide-icon [img]="ShoppingCart" [size]="18"></lucide-icon>
+              <button class="w-full bg-white/20 backdrop-blur-md hover:bg-white/30 text-white py-2 rounded-lg font-semibold transition flex items-center justify-center space-x-2 border border-white/30 shadow-lg text-sm md:text-base">
+                <lucide-icon [img]="ShoppingCart" [size]="16" [attr.md-size]="18"></lucide-icon>
                 <span>Comprar Ingresso</span>
               </button>
             </div>
@@ -72,63 +74,63 @@
       }
     </div>
 
-    <div class="text-center mt-12">
-      <button class="border-2 border-white/30 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white/10 transition">
+    <div class="text-center mt-8 md:mt-12">
+      <button class="border-2 border-white/30 text-white px-6 md:px-8 py-2 md:py-3 rounded-lg text-base md:text-lg font-semibold hover:bg-white/10 transition">
         Ver Todos os Eventos
       </button>
     </div>
   </div>
 </section>
 
-<section id="como-funciona" class="py-20 px-6 relative overflow-hidden" style="background: linear-gradient(to bottom right, #07532F, #16201E);">
+<section id="como-funciona" class="py-12 md:py-20 px-4 md:px-6 relative overflow-hidden" style="background: linear-gradient(to bottom right, #07532F, #16201E);">
   <!-- Padrão de fundo -->
   <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 40px 40px;"></div>
   
   <div class="container mx-auto relative z-10">
-    <div class="text-center mb-16">
-      <h2 class="text-4xl md:text-5xl font-bold mb-4 text-white">
+    <div class="text-center mb-12 md:mb-16">
+      <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white">
         Como
         <span style="color: #13E785;">
           Funciona
         </span>
       </h2>
-      <p class="text-xl text-gray-200">Comprar ingressos nunca foi tão fácil</p>
+      <p class="text-base md:text-xl text-gray-200">Comprar ingressos nunca foi tão fácil</p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-8">
-      <div class="text-center space-y-4 bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10">
-        <div class="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center shadow-lg" style="background-color: #13E785;">
-          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+      <div class="text-center space-y-4 bg-white/5 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-white/10">
+        <div class="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-2xl flex items-center justify-center shadow-lg" style="background-color: #13E785;">
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
-        <h3 class="text-2xl font-bold text-white">Encontre seu Evento</h3>
-        <p class="text-gray-300">Navegue por centenas de eventos incríveis. Use os filtros para encontrar exatamente o que você procura.</p>
+        <h3 class="text-xl md:text-2xl font-bold text-white">Encontre seu Evento</h3>
+        <p class="text-sm md:text-base text-gray-300">Navegue por centenas de eventos incríveis. Use os filtros para encontrar exatamente o que você procura.</p>
       </div>
 
-      <div class="text-center space-y-4 bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10">
-        <div class="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center shadow-lg" style="background-color: #13E785;">
-          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="text-center space-y-4 bg-white/5 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-white/10">
+        <div class="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-2xl flex items-center justify-center shadow-lg" style="background-color: #13E785;">
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
           </svg>
         </div>
-        <h3 class="text-2xl font-bold text-white">Escolha seus Ingressos</h3>
-        <p class="text-gray-300">Selecione a quantidade e o tipo de ingresso. Veja todos os detalhes do evento antes de comprar.</p>
+        <h3 class="text-xl md:text-2xl font-bold text-white">Escolha seus Ingressos</h3>
+        <p class="text-sm md:text-base text-gray-300">Selecione a quantidade e o tipo de ingresso. Veja todos os detalhes do evento antes de comprar.</p>
       </div>
 
-      <div class="text-center space-y-4 bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10">
-        <div class="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center shadow-lg" style="background-color: #13E785;">
-          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="text-center space-y-4 bg-white/5 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-white/10">
+        <div class="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-2xl flex items-center justify-center shadow-lg" style="background-color: #13E785;">
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
-        <h3 class="text-2xl font-bold text-white">Pague e Aproveite</h3>
-        <p class="text-gray-300">Pagamento 100% seguro. Receba seus ingressos por email instantaneamente e aproveite!</p>
+        <h3 class="text-xl md:text-2xl font-bold text-white">Pague e Aproveite</h3>
+        <p class="text-sm md:text-base text-gray-300">Pagamento 100% seguro. Receba seus ingressos por email instantaneamente e aproveite!</p>
       </div>
     </div>
 
-    <div class="text-center mt-12">
-      <button class="text-white px-8 py-4 rounded-lg text-lg font-semibold transition" style="background-color: #13E785;">
+    <div class="text-center mt-8 md:mt-12">
+      <button class="text-white px-6 md:px-8 py-3 md:py-4 rounded-lg text-base md:text-lg font-semibold transition" style="background-color: #13E785;">
         Explorar Eventos Agora
       </button>
     </div>

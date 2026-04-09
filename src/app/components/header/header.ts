@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { LucideAngularModule, User, LogOut, Ticket, Search, X } from 'lucide-angular';
+import { LucideAngularModule, User, LogOut, Ticket, Search, X, Menu } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -19,10 +19,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly Ticket = Ticket;
   readonly Search = Search;
   readonly X = X;
+  readonly Menu = Menu;
   
   isLoggedIn = false;
   userName = '';
   searchQuery = '';
+  menuOpen = false;
   private authSubscription?: Subscription;
 
   constructor(
@@ -86,5 +88,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   async logout() {
     await this.authService.logout();
     this.router.navigate(['/']);
+  }
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
   }
 }

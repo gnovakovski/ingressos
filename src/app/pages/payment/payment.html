@@ -1,93 +1,246 @@
-<div class="min-h-screen relative overflow-hidden py-24">
+<div class="min-h-screen relative overflow-hidden py-20 md:py-24">
   <!-- Background -->
   <div class="absolute inset-0" style="background: linear-gradient(to bottom right, #07532F, #16201E);"></div>
   <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0); background-size: 40px 40px;"></div>
   
-  <div class="container mx-auto px-6 max-w-4xl relative z-10">
-    <div class="mb-8 text-center">
-      <h1 class="text-4xl font-bold text-white mb-2">Pagamento</h1>
-      <p class="text-gray-300">{{ eventTitle }}</p>
+  <div class="container mx-auto px-4 md:px-6 max-w-5xl relative z-10">
+    <!-- Header -->
+    <div class="mb-6 md:mb-8">
+      <button 
+        (click)="goBack()"
+        class="flex items-center space-x-2 text-gray-300 hover:text-white transition mb-4"
+      >
+        <lucide-icon [img]="ArrowLeft" [size]="20"></lucide-icon>
+        <span class="text-sm md:text-base">Voltar</span>
+      </button>
+      <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">Pagamento</h1>
+      <p class="text-sm md:text-base text-gray-300">{{ eventTitle }}</p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Resumo do Pedido -->
-      <div class="lg:col-span-2">
-        <div class="bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50 mb-6">
-          <h3 class="text-xl font-bold text-white mb-4 flex items-center">
-            <lucide-icon [img]="ShoppingCart" class="mr-2" style="color: #10B981;" [size]="24"></lucide-icon>
-            Resumo do Pedido
-          </h3>
+    <!-- Mensagem de Erro -->
+    @if (error) {
+      <div class="bg-red-500/20 border border-red-500 rounded-lg p-4 mb-6 flex items-center">
+        <lucide-icon [img]="AlertCircle" class="text-red-500 mr-3 flex-shrink-0" [size]="24"></lucide-icon>
+        <p class="text-sm md:text-base text-red-200">{{ error }}</p>
+      </div>
+    }
 
-          <div class="space-y-3">
-            @for (ticket of selectedTickets; track ticket.id) {
-              <div class="flex justify-between items-center py-3 border-b border-gray-700">
-                <div>
-                  <p class="text-white font-semibold">{{ ticket.ticketTypeName }}</p>
-                  <p class="text-gray-400 text-sm">{{ ticket.name }}</p>
+    <!-- Mensagem de Sucesso -->
+    @if (paymentSuccess) {
+      <div class="bg-green-500/20 border border-green-500 rounded-xl md:rounded-2xl p-8 md:p-12 text-center">
+        <lucide-icon [img]="CheckCircle" class="mx-auto mb-4 text-green-500" [size]="64"></lucide-icon>
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">Pagamento Aprovado!</h2>
+        <p class="text-base md:text-lg text-gray-200 mb-4">Seus ingressos foram enviados para o seu email.</p>
+        <div class="flex items-center justify-center space-x-2 text-gray-300">
+          <lucide-icon [img]="Loader2" class="animate-spin" [size]="20"></lucide-icon>
+          <span class="text-sm">Redirecionando...</span>
+        </div>
+      </div>
+    }
+
+    @if (!paymentSuccess) {
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        <!-- Coluna Esquerda - Formulário de Pagamento -->
+        <div class="lg:col-span-2 space-y-4 md:space-y-6">
+          <!-- Resumo do Pedido -->
+          <div class="bg-gray-800/90 backdrop-blur-md rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-700/50">
+            <h3 class="text-lg md:text-xl font-bold text-white mb-4 flex items-center">
+              <lucide-icon [img]="ShoppingCart" class="mr-2" style="color: #10B981;" [size]="20" [attr.md-size]="24"></lucide-icon>
+              Resumo do Pedido
+            </h3>
+
+            <div class="space-y-3">
+              @for (ticket of selectedTickets; track ticket.id) {
+                <div class="flex justify-between items-start py-3 border-b border-gray-700 last:border-0">
+                  <div class="flex-1">
+                    <p class="text-sm md:text-base text-white font-semibold">{{ ticket.ticketTypeName }}</p>
+                    <p class="text-xs md:text-sm text-gray-400">{{ ticket.name }}</p>
+                  </div>
+                  <p class="text-sm md:text-base text-white font-bold ml-4">R$ {{ ticket.price.toFixed(2) }}</p>
                 </div>
-                <p class="text-white font-bold">R$ {{ ticket.price.toFixed(2) }}</p>
+              }
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-gray-700">
+              <div class="flex justify-between items-center">
+                <span class="text-lg md:text-xl font-bold text-white">Total</span>
+                <span class="text-2xl md:text-3xl font-bold" style="color: #10B981;">R$ {{ totalPrice.toFixed(2) }}</span>
               </div>
-            }
+              <p class="text-xs text-gray-400 mt-2">{{ selectedTickets.length }} ingresso{{ selectedTickets.length > 1 ? 's' : '' }}</p>
+            </div>
           </div>
 
-          <div class="mt-6 pt-4 border-t border-gray-700">
-            <div class="flex justify-between items-center">
-              <span class="text-xl font-bold text-white">Total</span>
-              <span class="text-3xl font-bold" style="color: #10B981;">R$ {{ totalPrice.toFixed(2) }}</span>
+          <!-- Formulário de Pagamento -->
+          <div class="bg-gray-800/90 backdrop-blur-md rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-700/50">
+            <h3 class="text-lg md:text-xl font-bold text-white mb-4 flex items-center">
+              <lucide-icon [img]="CreditCard" class="mr-2" style="color: #10B981;" [size]="20" [attr.md-size]="24"></lucide-icon>
+              Dados do Cartão
+            </h3>
+
+            <form (ngSubmit)="processPayment()" #paymentForm="ngForm">
+              <div class="space-y-4">
+                <!-- Número do Cartão -->
+                <div>
+                  <label class="block text-xs md:text-sm font-medium text-gray-300 mb-2">
+                    Número do Cartão <span class="text-red-500">*</span>
+                  </label>
+                  <div class="relative">
+                    <lucide-icon [img]="CreditCard" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" [size]="18"></lucide-icon>
+                    <input
+                      type="text"
+                      [(ngModel)]="cardNumber"
+                      name="cardNumber"
+                      (input)="formatCardNumber($event)"
+                      required
+                      maxlength="19"
+                      class="w-full pl-10 pr-4 py-2 md:py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-sm md:text-base text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition"
+                      placeholder="0000 0000 0000 0000"
+                    />
+                  </div>
+                </div>
+
+                <!-- Nome no Cartão -->
+                <div>
+                  <label class="block text-xs md:text-sm font-medium text-gray-300 mb-2">
+                    Nome no Cartão <span class="text-red-500">*</span>
+                  </label>
+                  <div class="relative">
+                    <lucide-icon [img]="UserIcon" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" [size]="18"></lucide-icon>
+                    <input
+                      type="text"
+                      [(ngModel)]="cardName"
+                      name="cardName"
+                      required
+                      class="w-full pl-10 pr-4 py-2 md:py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-sm md:text-base text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition uppercase"
+                      placeholder="NOME COMO NO CARTÃO"
+                    />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
+                  <!-- Validade -->
+                  <div>
+                    <label class="block text-xs md:text-sm font-medium text-gray-300 mb-2">
+                      Validade <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <lucide-icon [img]="Calendar" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" [size]="18"></lucide-icon>
+                      <input
+                        type="text"
+                        [(ngModel)]="cardExpiry"
+                        name="cardExpiry"
+                        (input)="formatExpiry($event)"
+                        required
+                        maxlength="5"
+                        class="w-full pl-10 pr-4 py-2 md:py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-sm md:text-base text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition"
+                        placeholder="MM/AA"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- CVV -->
+                  <div>
+                    <label class="block text-xs md:text-sm font-medium text-gray-300 mb-2">
+                      CVV <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <lucide-icon [img]="Lock" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" [size]="18"></lucide-icon>
+                      <input
+                        type="text"
+                        [(ngModel)]="cardCvv"
+                        name="cardCvv"
+                        (input)="formatCvv($event)"
+                        required
+                        maxlength="4"
+                        class="w-full pl-10 pr-4 py-2 md:py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-sm md:text-base text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition"
+                        placeholder="123"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Aviso -->
+                <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 md:p-4">
+                  <p class="text-xs md:text-sm text-blue-200">
+                    <strong>Nota:</strong> Este é um ambiente de demonstração. Os dados do cartão não serão processados de verdade. A integração com gateway de pagamento será feita futuramente.
+                  </p>
+                </div>
+
+                <!-- Botão de Pagamento -->
+                <button
+                  type="submit"
+                  [disabled]="processing || !paymentForm.valid"
+                  class="w-full text-white py-3 md:py-4 rounded-lg font-semibold text-base md:text-lg transition hover:opacity-90 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  style="background-color: #10B981;"
+                >
+                  @if (processing) {
+                    <span class="flex items-center justify-center">
+                      <lucide-icon [img]="Loader2" class="mr-2 animate-spin" [size]="20"></lucide-icon>
+                      Processando Pagamento...
+                    </span>
+                  } @else {
+                    <span class="flex items-center justify-center">
+                      <lucide-icon [img]="Lock" class="mr-2" [size]="20"></lucide-icon>
+                      Finalizar Pagamento - R$ {{ totalPrice.toFixed(2) }}
+                    </span>
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Coluna Direita - Informações de Segurança -->
+        <div class="lg:col-span-1">
+          <div class="bg-gray-800/90 backdrop-blur-md rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-700/50 lg:sticky lg:top-24">
+            <h3 class="text-base md:text-lg font-bold text-white mb-4 flex items-center">
+              <lucide-icon [img]="Lock" class="mr-2" style="color: #10B981;" [size]="20"></lucide-icon>
+              Pagamento Seguro
+            </h3>
+            <div class="space-y-3 text-xs md:text-sm text-gray-300">
+              <div class="flex items-start space-x-2">
+                <span class="text-green-400 mt-0.5">✓</span>
+                <p>Ambiente 100% seguro com criptografia SSL</p>
+              </div>
+              <div class="flex items-start space-x-2">
+                <span class="text-green-400 mt-0.5">✓</span>
+                <p>Seus dados são protegidos e não são armazenados</p>
+              </div>
+              <div class="flex items-start space-x-2">
+                <span class="text-green-400 mt-0.5">✓</span>
+                <p>Certificado PCI DSS para transações seguras</p>
+              </div>
+              <div class="flex items-start space-x-2">
+                <span class="text-green-400 mt-0.5">✓</span>
+                <p>Proteção contra fraudes e chargebacks</p>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-gray-700">
+              <h4 class="text-sm font-semibold text-white mb-3">Aceitamos</h4>
+              <div class="grid grid-cols-3 gap-2">
+                <div class="bg-white rounded p-2 flex items-center justify-center">
+                  <span class="text-xs font-bold text-gray-800">VISA</span>
+                </div>
+                <div class="bg-white rounded p-2 flex items-center justify-center">
+                  <span class="text-xs font-bold text-gray-800">MASTER</span>
+                </div>
+                <div class="bg-white rounded p-2 flex items-center justify-center">
+                  <span class="text-xs font-bold text-gray-800">ELO</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-gray-700">
+              <h4 class="text-sm font-semibold text-white mb-2">Precisa de ajuda?</h4>
+              <p class="text-xs text-gray-400 mb-3">Entre em contato com nosso suporte</p>
+              <a href="#" class="text-xs font-semibold hover:underline" style="color: #10B981;">
+                contato@vingo.com.br
+              </a>
             </div>
           </div>
         </div>
-
-        <!-- Área de Integração do Gateway -->
-        <div class="bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50">
-          <h3 class="text-xl font-bold text-white mb-4 flex items-center">
-            <lucide-icon [img]="CreditCard" class="mr-2" style="color: #10B981;" [size]="24"></lucide-icon>
-            Método de Pagamento
-          </h3>
-
-          <div class="bg-gray-700/50 rounded-xl p-8 text-center">
-            <lucide-icon [img]="CreditCard" class="mx-auto mb-4 text-gray-400" [size]="64"></lucide-icon>
-            <p class="text-gray-300 mb-2">Gateway de Pagamento</p>
-            <p class="text-gray-400 text-sm mb-6">
-              Aqui será integrado o gateway de pagamento<br>
-              (Stripe, Mercado Pago, PagSeguro, etc)
-            </p>
-
-            <!-- Botão Temporário para Simular Pagamento -->
-            <button
-              (click)="processPayment()"
-              [disabled]="processing"
-              class="text-white px-8 py-3 rounded-lg font-semibold transition hover:opacity-90 disabled:opacity-50"
-              style="background-color: #10B981;"
-            >
-              @if (processing) {
-                <span class="flex items-center justify-center">
-                  <lucide-icon [img]="Loader2" class="mr-2 animate-spin" [size]="20"></lucide-icon>
-                  Processando...
-                </span>
-              } @else {
-                <span class="flex items-center justify-center">
-                  <lucide-icon [img]="CheckCircle" class="mr-2" [size]="20"></lucide-icon>
-                  Simular Pagamento
-                </span>
-              }
-            </button>
-          </div>
-        </div>
       </div>
-
-      <!-- Informações de Segurança -->
-      <div class="lg:col-span-1">
-        <div class="bg-gray-800/90 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50">
-          <h3 class="text-lg font-bold text-white mb-4">Pagamento Seguro</h3>
-          <div class="space-y-3 text-sm text-gray-300">
-            <p>✓ Ambiente 100% seguro</p>
-            <p>✓ Dados criptografados</p>
-            <p>✓ Certificado SSL</p>
-            <p>✓ Proteção contra fraudes</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    }
   </div>
 </div>
