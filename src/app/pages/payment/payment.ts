@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, CreditCard, ShoppingCart, CheckCircle, Loader2, Lock, Calendar, User as UserIcon, AlertCircle, ArrowLeft } from 'lucide-angular';
@@ -48,6 +48,8 @@ export class PaymentComponent implements OnInit {
   cardName: string = '';
   cardExpiry: string = '';
   cardCvv: string = '';
+  
+  private platformId = inject(PLATFORM_ID);
 
   constructor(
     private router: Router,
@@ -57,6 +59,10 @@ export class PaymentComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return; // Não executar no servidor
+    }
+    
     const ticketsData = sessionStorage.getItem('selectedTickets');
     const eventTitle = sessionStorage.getItem('eventTitle');
     const eventId = sessionStorage.getItem('eventId');
@@ -167,10 +173,12 @@ export class PaymentComponent implements OnInit {
       
       // Aguardar 2 segundos e redirecionar
       setTimeout(() => {
-        // Limpar dados da sessão
-        sessionStorage.removeItem('selectedTickets');
-        sessionStorage.removeItem('eventId');
-        sessionStorage.removeItem('eventTitle');
+        // Limpar dados da sessão (apenas no browser)
+        if (isPlatformBrowser(this.platformId)) {
+          sessionStorage.removeItem('selectedTickets');
+          sessionStorage.removeItem('eventId');
+          sessionStorage.removeItem('eventTitle');
+        }
         
         this.router.navigate(['/meus-ingressos']);
       }, 2000);

@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -26,6 +26,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   searchQuery = '';
   menuOpen = false;
   private authSubscription?: Subscription;
+  private platformId = inject(PLATFORM_ID);
 
   constructor(
     private authService: AuthService,
@@ -88,8 +89,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   async logout() {
     try {
       await this.authService.logout();
-      // Recarregar a página para limpar todo o estado
-      window.location.href = '/';
+      // Recarregar a página para limpar todo o estado (apenas no browser)
+      if (isPlatformBrowser(this.platformId)) {
+        window.location.href = '/';
+      } else {
+        this.router.navigate(['/']);
+      }
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
