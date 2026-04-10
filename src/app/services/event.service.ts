@@ -123,6 +123,14 @@ export class EventService {
 
   async getEventById(eventId: string): Promise<Event | null> {
     try {
+      console.log('🔍 Buscando evento:', eventId);
+      
+      // Validar eventId
+      if (!eventId || eventId.trim() === '') {
+        console.error('❌ EventId inválido');
+        return null;
+      }
+      
       // Tentar do cache primeiro
       if (this.eventsCache) {
         const cached = this.eventsCache.find(e => e.id === eventId);
@@ -133,34 +141,45 @@ export class EventService {
       }
 
       console.log('🔄 Buscando evento do Firebase:', eventId);
-      const docRef = doc(db, 'events', eventId);
-      const docSnap = await getDoc(docRef);
       
-      if (!docSnap.exists()) {
-        console.log('❌ Evento não encontrado:', eventId);
-        return null;
-      }
+      // Adicionar timeout de segurança
+      const timeoutPromise = new Promise<null>((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout ao buscar evento')), 10000);
+      });
+      
+      const fetchPromise = (async () => {
+        const docRef = doc(db, 'events', eventId);
+        const docSnap = await getDoc(docRef);
+        
+        if (!docSnap.exists()) {
+          console.log('❌ Evento não encontrado:', eventId);
+          return null;
+        }
 
-      const data = docSnap.data();
-      return {
-        id: docSnap.id,
-        title: data['title'] || '',
-        description: data['description'] || '',
-        shortDescription: data['shortDescription'] || '',
-        category: data['category'] || '',
-        image: data['image'] || '',
-        date: data['date']?.toDate() || new Date(),
-        endDate: data['endDate']?.toDate(),
-        location: data['location'] || '',
-        venue: data['venue'] || '',
-        city: data['city'] || '',
-        state: data['state'] || '',
-        startTime: data['startTime'] || '',
-        endTime: data['endTime'] || '',
-        ticketTypes: data['ticketTypes'] || [],
-        featured: data['featured'] || false,
-        createdAt: data['createdAt']?.toDate() || new Date()
-      };
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          title: data['title'] || '',
+          description: data['description'] || '',
+          shortDescription: data['shortDescription'] || '',
+          category: data['category'] || '',
+          image: data['image'] || '',
+          date: data['date']?.toDate() || new Date(),
+          endDate: data['endDate']?.toDate(),
+          location: data['location'] || '',
+          venue: data['venue'] || '',
+          city: data['city'] || '',
+          state: data['state'] || '',
+          startTime: data['startTime'] || '',
+          endTime: data['endTime'] || '',
+          ticketTypes: data['ticketTypes'] || [],
+          featured: data['featured'] || false,
+          createdAt: data['createdAt']?.toDate() || new Date()
+        };
+      })();
+      
+      return await Promise.race([fetchPromise, timeoutPromise]);
+      
     } catch (error) {
       console.error('❌ Erro ao buscar evento:', error);
       return null;

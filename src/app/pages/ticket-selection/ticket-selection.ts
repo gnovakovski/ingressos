@@ -56,6 +56,7 @@ export class TicketSelectionComponent implements OnInit, OnDestroy {
   error: string = '';
   loading = true;
   private isLoadingTickets = false;
+  private readonly STORAGE_KEY = 'vingo_ticket_selection';
   
   private platformId = inject(PLATFORM_ID);
   
@@ -99,7 +100,18 @@ export class TicketSelectionComponent implements OnInit, OnDestroy {
     private eventService: EventService,
     private voucherService: VoucherService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    // Limpar localStorage ao navegar para fora desta página
+    this.router.events.subscribe(event => {
+      if (event.constructor.name === 'NavigationStart') {
+        const navigation = event as any;
+        // Se está saindo desta página e não é para a página de pagamento
+        if (!navigation.url.includes('/ingressos')) {
+          this.clearLocalStorage();
+        }
+      }
+    });
+  }
 
   async ngOnInit() {
     console.log('🎟️ TicketSelectionComponent: ngOnInit chamado');
@@ -129,6 +141,8 @@ export class TicketSelectionComponent implements OnInit, OnDestroy {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
     }
+    // Salvar dados no localStorage ao sair
+    this.saveToLocalStorage();
   }
 
   async initializeComponent() {
@@ -142,7 +156,14 @@ export class TicketSelectionComponent implements OnInit, OnDestroy {
     this.eventId = this.route.snapshot.paramMap.get('id') || '';
     
     await this.loadTicketTypes();
-    await this.addTicketForCurrentUser();
+    
+    // Tentar recuperar do localStorage primeiro
+    const restored = this.restoreFromLocalStorage();
+    
+    // Se não recuperou do localStorage, adicionar ingresso do usuário atual
+    if (!restored) {
+      await this.addTicketForCurrentUser();
+    }
     
     this.loading = false;
     this.isLoadingTickets = false;
@@ -182,6 +203,12 @@ export class TicketSelectionComponent implements OnInit, OnDestroy {
   async addTicketForCurrentUser() {
     const user = this.authService.currentUser;
     if (!user || this.ticketTypes.length === 0) return;
+
+    // Verificar se já existem participantes (evitar duplicação)
+    if (this.selectedTickets.length > 0) {
+      console.log('⚠️ TicketSelection: Já existem participantes, não adicionando duplicado');
+      return;
+    }
 
     // Buscar dados completos do usuário no Firestore
     try {
@@ -355,12 +382,8 @@ export class TicketSelectionComponent implements OnInit, OnDestroy {
 
       console.log('✅ Vouchers gerados com sucesso!');
 
-      // Limpar sessionStorage (apenas no browser)
-      if (isPlatformBrowser(this.platformId)) {
-        sessionStorage.removeItem('selectedTickets');
-        sessionStorage.removeItem('eventId');
-        sessionStorage.removeItem('eventTitle');
-      }
+      // Limpar localStorage ao finalizar compra
+      this.clearLocalStorage();
 
       // Redirecionar para Meus Ingressos
       this.router.navigate(['/meus-ingressos']);
@@ -369,6 +392,71 @@ export class TicketSelectionComponent implements OnInit, OnDestroy {
       console.error('❌ Erro ao gerar vouchers:', error);
       this.error = 'Erro ao processar ingressos. Tente novamente.';
       this.loading = false;
+    }
+  }
+
+  // Salvar dados no localStorage
+  private saveToLocalStorage(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    try {
+      const data = {
+        eventId: this.eventId,
+        selectedTickets: this.selectedTickets,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+      console.log('💾 Dados salvos no localStorage');
+    } catch (error) {
+      console.error('❌ Erro ao salvar no localStorage:', error);
+    }
+  }
+
+  // Restaurar dados do localStorage
+  private restoreFromLocalStorage(): boolean {
+    if (!isPlatformBrowser(this.platformId)) return false;
+    
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (!stored) return false;
+      
+      const data = JSON.parse(stored);
+      
+      // Verificar se é do mesmo evento
+      if (data.eventId !== this.eventId) {
+        console.log('⚠️ Dados são de outro evento, ignorando');
+        this.clearLocalStorage();
+        return false;
+      }
+      
+      // Verificar se não expirou (30 minutos)
+      const maxAge = 30 * 60 * 1000;
+      if (Date.now() - data.timestamp > maxAge) {
+        console.log('⏰ Dados expiraram, ignorando');
+        this.clearLocalStorage();
+        return false;
+      }
+      
+      // Restaurar participantes
+      this.selectedTickets = data.selectedTickets || [];
+      console.log('✅ Dados restaurados do localStorage:', this.selectedTickets.length, 'participantes');
+      return this.selectedTickets.length > 0;
+      
+    } catch (error) {
+      console.error('❌ Erro ao restaurar do localStorage:', error);
+      return false;
+    }
+  }
+
+  // Limpar localStorage
+  private clearLocalStorage(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    try {
+      localStorage.removeItem(this.STORAGE_KEY);
+      console.log('🗑️ localStorage limpo');
+    } catch (error) {
+      console.error('❌ Erro ao limpar localStorage:', error);
     }
   }
 }

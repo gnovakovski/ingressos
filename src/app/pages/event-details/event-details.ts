@@ -53,6 +53,8 @@ export class EventDetailsComponent implements OnInit {
   eventId: string = '';
   showLoginModal = false;
   private isLoading = false;
+  private loadAttempts = 0;
+  private readonly MAX_LOAD_ATTEMPTS = 3;
 
   constructor(
     private route: ActivatedRoute,
@@ -65,6 +67,14 @@ export class EventDetailsComponent implements OnInit {
   ngOnInit() {
     this.eventId = this.route.snapshot.paramMap.get('id') || '';
     console.log('📍 EventDetails: Event ID:', this.eventId);
+    
+    // Verificar se o eventId é válido
+    if (!this.eventId) {
+      console.error('❌ EventDetails: ID do evento não encontrado');
+      this.loading = false;
+      return;
+    }
+    
     this.loadEvent();
   }
 
@@ -75,11 +85,20 @@ export class EventDetailsComponent implements OnInit {
       return;
     }
 
+    // Prevenir loops infinitos
+    this.loadAttempts++;
+    if (this.loadAttempts > this.MAX_LOAD_ATTEMPTS) {
+      console.error('❌ EventDetails: Máximo de tentativas atingido, abortando');
+      this.loading = false;
+      this.isLoading = false;
+      return;
+    }
+
     this.isLoading = true;
     this.loading = true;
     
     try {
-      console.log('🔄 EventDetails: Buscando evento do Firebase...');
+      console.log(`🔄 EventDetails: Buscando evento do Firebase (tentativa ${this.loadAttempts})...`);
       const firebaseEvent = await this.eventService.getEventById(this.eventId);
       
       if (!firebaseEvent) {
@@ -125,6 +144,7 @@ export class EventDetailsComponent implements OnInit {
       console.log('✅ EventDetails: Dados processados com sucesso');
       this.loading = false;
       this.isLoading = false;
+      this.loadAttempts = 0; // Reset contador em caso de sucesso
       this.cdr.detectChanges();
       
     } catch (error) {
