@@ -7,7 +7,11 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:vingo": "node dist/vingo/server/server.mjs"
+    "serve:ssr:vingo": "node dist/vingo/server/server.mjs",
+    "add-event": "tsx src/scripts/add-ressuscitou-event.ts",
+    "test-firebase": "tsx src/scripts/test-firebase-connection.ts",
+    "clean": "rimraf .angular/cache dist",
+    "clean:start": "npm run clean && npm start"
   },
   "private": true,
   "packageManager": "npm@11.9.0",
@@ -22,7 +26,11 @@
     "@angular/ssr": "^21.2.1",
     "express": "^5.1.0",
     "firebase": "^12.11.0",
+    "html2canvas": "^1.4.1",
+    "jsbarcode": "^3.12.3",
+    "jspdf": "^4.2.1",
     "lucide-angular": "^1.0.0",
+    "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -31,12 +39,15 @@
     "@angular/cli": "^21.2.1",
     "@angular/compiler-cli": "^21.2.0",
     "@types/express": "^5.0.1",
+    "@types/jsbarcode": "^3.11.4",
     "@types/node": "^20.17.19",
+    "@types/qrcode": "^1.5.6",
     "autoprefixer": "^10.4.27",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.8",
     "prettier": "^3.8.1",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
   }

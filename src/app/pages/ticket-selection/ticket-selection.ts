@@ -1,9 +1,12 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideAngularModule, Plus, Minus, Trash2, User, Calendar, CreditCard, ShoppingCart, AlertCircle } from 'lucide-angular';
+import { Subscription } from 'rxjs';
+import { LucideAngularModule, Plus, Minus, Trash2, User, Calendar, CreditCard, ShoppingCart, AlertCircle, Loader2 } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
+import { EventService } from '../../services/event.service';
+import { VoucherService } from '../../services/voucher.service';
 
 interface TicketType {
   id: string;
@@ -11,6 +14,7 @@ interface TicketType {
   price: number;
   priceFormatted: string;
   available: number;
+  batch: string;
 }
 
 interface TicketPerson {
@@ -29,10 +33,9 @@ interface TicketPerson {
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './ticket-selection.html',
-  styleUrl: './ticket-selection.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './ticket-selection.css'
 })
-export class TicketSelectionComponent implements OnInit {
+export class TicketSelectionComponent implements OnInit, OnDestroy {
   readonly Plus = Plus;
   readonly Minus = Minus;
   readonly Trash2 = Trash2;
@@ -41,12 +44,20 @@ export class TicketSelectionComponent implements OnInit {
   readonly CreditCard = CreditCard;
   readonly ShoppingCart = ShoppingCart;
   readonly AlertCircle = AlertCircle;
+  readonly Loader2 = Loader2;
 
   eventId: string = '';
-  eventTitle: string = 'Festival Eletrônica 2026';
+  eventTitle: string = '';
   ticketTypes: TicketType[] = [];
   selectedTickets: TicketPerson[] = [];
+  isCheckingAuth = true;
+  isLoggedIn = false;
+  private authSubscription?: Subscription;
   error: string = '';
+  loading = true;
+  private isLoadingTickets = false;
+  
+  private platformId = inject(PLATFORM_ID);
   
   // Propriedades computadas para evitar chamadas de função no template
   get totalPrice(): string {
@@ -85,38 +96,92 @@ export class TicketSelectionComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
+    private eventService: EventService,
+    private voucherService: VoucherService,
     private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
-    if (!this.authService.currentUser) {
-      this.router.navigate(['/login']);
+    console.log('🎟️ TicketSelectionComponent: ngOnInit chamado');
+    
+    // Aguardar AuthService inicializar
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Inscrever-se nas mudanças de autenticação
+    this.authSubscription = this.authService.currentUser$.subscribe(user => {
+      this.isCheckingAuth = false;
+      
+      if (user) {
+        this.isLoggedIn = true;
+        console.log('✅ TicketSelection: Usuário autenticado, carregando ingressos');
+        this.initializeComponent();
+      } else {
+        this.isLoggedIn = false;
+        console.log('❌ TicketSelection: Usuário não autenticado, redirecionando');
+        this.router.navigate(['/login']);
+      }
+      
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
+  }
+
+  async initializeComponent() {
+    // Prevenir múltiplas inicializações
+    if (this.isLoadingTickets) {
+      console.log('⏳ TicketSelection: Já está inicializando, ignorando chamada duplicada');
       return;
     }
 
+    this.isLoadingTickets = true;
     this.eventId = this.route.snapshot.paramMap.get('id') || '';
-    this.loadTicketTypes();
+    
+    await this.loadTicketTypes();
     await this.addTicketForCurrentUser();
+    
+    this.loading = false;
+    this.isLoadingTickets = false;
+    this.cdr.detectChanges();
   }
 
-  loadTicketTypes() {
-    // Mock data - substituir por chamada ao Firebase
-    const rawTickets = [
-      { id: '1', name: 'Pista', price: 120.00, available: 300 },
-      { id: '2', name: 'Front Stage', price: 200.00, available: 150 },
-      { id: '3', name: 'Camarote', price: 350.00, available: 50 }
-    ];
-    
-    // Pré-processar preços
-    this.ticketTypes = rawTickets.map(ticket => ({
-      ...ticket,
-      priceFormatted: ticket.price.toFixed(2)
-    }));
+  async loadTicketTypes() {
+    try {
+      console.log('🎫 TicketSelection: Carregando tipos de ingresso...');
+      const event = await this.eventService.getEventById(this.eventId);
+      
+      if (!event) {
+        console.error('❌ TicketSelection: Evento não encontrado');
+        return;
+      }
+
+      console.log('✅ TicketSelection: Evento encontrado:', event.title);
+      this.eventTitle = event.title;
+      
+      // Pré-processar preços
+      this.ticketTypes = event.ticketTypes.map(ticket => ({
+        id: ticket.id,
+        name: ticket.name,
+        price: ticket.price,
+        priceFormatted: ticket.price.toFixed(2),
+        available: ticket.available,
+        batch: ticket.batch
+      }));
+      
+      console.log('✅ TicketSelection: Tipos de ingresso carregados:', this.ticketTypes.length);
+      
+    } catch (error) {
+      console.error('❌ TicketSelection: Erro ao carregar tipos de ingresso:', error);
+    }
   }
 
   async addTicketForCurrentUser() {
     const user = this.authService.currentUser;
-    if (!user) return;
+    if (!user || this.ticketTypes.length === 0) return;
 
     // Buscar dados completos do usuário no Firestore
     try {
@@ -130,15 +195,15 @@ export class TicketSelectionComponent implements OnInit {
         const birthDate = userData.dataNascimento;
         const birthDateFormatted = `${birthDate.getFullYear()}-${String(birthDate.getMonth() + 1).padStart(2, '0')}-${String(birthDate.getDate()).padStart(2, '0')}`;
         
-        this.addTicket('1', `${userData.nome} ${userData.sobrenome}`, cpfFormatted, birthDateFormatted);
+        this.addTicket(this.ticketTypes[0].id, `${userData.nome} ${userData.sobrenome}`, cpfFormatted, birthDateFormatted);
       } else {
         // Fallback se não encontrar dados no Firestore
-        this.addTicket('1', user.displayName || 'Usuário', '', '');
+        this.addTicket(this.ticketTypes[0].id, user.displayName || 'Usuário', '', '');
       }
     } catch (error) {
       console.error('Erro ao carregar dados do usuário:', error);
       // Fallback em caso de erro
-      this.addTicket('1', user.displayName || 'Usuário', '', '');
+      this.addTicket(this.ticketTypes[0].id, user.displayName || 'Usuário', '', '');
     }
   }
 
@@ -239,16 +304,71 @@ export class TicketSelectionComponent implements OnInit {
     return true;
   }
 
-  goToPayment() {
+  async goToPayment() {
     if (!this.validateTickets()) {
       return;
     }
 
-    // Salvar dados no sessionStorage para usar na página de pagamento
-    sessionStorage.setItem('selectedTickets', JSON.stringify(this.selectedTickets));
-    sessionStorage.setItem('eventId', this.eventId);
-    sessionStorage.setItem('eventTitle', this.eventTitle);
+    this.loading = true;
 
-    this.router.navigate(['/pagamento']);
+    try {
+      // Buscar dados do evento
+      const event = await this.eventService.getEventById(this.eventId);
+      if (!event) {
+        this.error = 'Evento não encontrado';
+        this.loading = false;
+        return;
+      }
+
+      const user = this.authService.currentUser;
+      if (!user) {
+        this.error = 'Usuário não autenticado';
+        this.loading = false;
+        return;
+      }
+
+      // Preparar dados dos ingressos
+      const tickets = this.selectedTickets.map(ticket => {
+        const ticketType = this.ticketTypes.find(t => t.id === ticket.ticketTypeId);
+        return {
+          ticketType: ticket.ticketTypeName,
+          ticketBatch: ticketType?.batch || 'Primeiro Lote',
+          price: ticket.price,
+          participantName: ticket.name,
+          participantCpf: ticket.cpf,
+          participantBirthDate: ticket.birthDate,
+          ticketTypeId: ticket.ticketTypeId // Adicionar ID para decrementar estoque
+        };
+      });
+
+      // Criar vouchers
+      console.log('🎫 Gerando vouchers...');
+      await this.voucherService.createVouchers(
+        user.uid,
+        this.eventId,
+        event.title,
+        event.date,
+        `${event.city} - ${event.state}`,
+        event.location,
+        tickets
+      );
+
+      console.log('✅ Vouchers gerados com sucesso!');
+
+      // Limpar sessionStorage (apenas no browser)
+      if (isPlatformBrowser(this.platformId)) {
+        sessionStorage.removeItem('selectedTickets');
+        sessionStorage.removeItem('eventId');
+        sessionStorage.removeItem('eventTitle');
+      }
+
+      // Redirecionar para Meus Ingressos
+      this.router.navigate(['/meus-ingressos']);
+
+    } catch (error) {
+      console.error('❌ Erro ao gerar vouchers:', error);
+      this.error = 'Erro ao processar ingressos. Tente novamente.';
+      this.loading = false;
+    }
   }
 }

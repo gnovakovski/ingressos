@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, User, Mail, MapPin, UserPlus, Eye, EyeOff, CheckCircle, AlertCircle, Loader2 } from 'lucide-angular';
@@ -51,6 +51,8 @@ export class RegisterComponent {
   loading = false;
   success = false;
   error = '';
+
+  private platformId = inject(PLATFORM_ID);
 
   constructor(
     private authService: AuthService,
@@ -153,12 +155,16 @@ export class RegisterComponent {
 
       this.success = true;
       
-      // Verificar se há uma URL de redirecionamento salva
-      const redirectUrl = sessionStorage.getItem('redirectUrl');
+      // Verificar se há uma URL de redirecionamento salva (apenas no browser)
+      let redirectUrl: string | null = null;
+      if (isPlatformBrowser(this.platformId)) {
+        redirectUrl = sessionStorage.getItem('redirectUrl');
+        if (redirectUrl) {
+          sessionStorage.removeItem('redirectUrl');
+        }
+      }
       
       if (redirectUrl) {
-        // Limpar a URL salva
-        sessionStorage.removeItem('redirectUrl');
         // Redirecionar para a URL original após 1.5s
         setTimeout(() => {
           this.router.navigateByUrl(redirectUrl);

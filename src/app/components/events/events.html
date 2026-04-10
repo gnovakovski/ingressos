@@ -31,46 +31,56 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-      @for (event of events; track event.id) {
-        <div class="group cursor-pointer" (click)="navigateToEvent(event.id)">
-          <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-white/5 backdrop-blur-sm border border-white/10">
-            <!-- Imagem de fundo -->
-            <div class="h-48 md:h-64 relative bg-cover bg-center" [style.background-image]="'url(' + event.imageUrl + ')'">
-              <!-- Overlay com gradiente -->
-              <div class="absolute inset-0 bg-gradient-to-br {{ event.gradient }} opacity-60"></div>
-              <!-- Ícone centralizado -->
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="bg-white/20 backdrop-blur-sm rounded-full p-4 md:p-6">
-                  <lucide-icon [img]="event.icon" class="text-white" [size]="36" [attr.md-size]="48" [strokeWidth]="1.5"></lucide-icon>
+      @if (loading) {
+        <div class="col-span-full flex justify-center items-center py-20">
+          <lucide-icon [img]="Loader2" class="text-white animate-spin" [size]="48"></lucide-icon>
+        </div>
+      } @else if (events.length === 0) {
+        <div class="col-span-full text-center py-20">
+          <p class="text-xl text-gray-400">Nenhum evento disponível no momento</p>
+        </div>
+      } @else {
+        @for (event of events; track event.id) {
+          <div class="group cursor-pointer" (click)="navigateToEvent(event.id)">
+            <div class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-white/5 backdrop-blur-sm border border-white/10">
+              <!-- Imagem de fundo -->
+              <div class="h-48 md:h-64 relative bg-cover bg-center" [style.background-image]="'url(' + event.imageUrl + ')'">
+                <!-- Overlay com gradiente -->
+                <div class="absolute inset-0 bg-gradient-to-br {{ event.gradient }} opacity-60"></div>
+                <!-- Ícone centralizado -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="bg-white/20 backdrop-blur-sm rounded-full p-4 md:p-6">
+                    <lucide-icon [img]="event.icon" class="text-white" [size]="36" [attr.md-size]="48" [strokeWidth]="1.5"></lucide-icon>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 md:px-3 py-1 rounded-full">
-              <span class="text-xs md:text-sm font-semibold text-purple-600">{{ event.price }}</span>
-            </div>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent"></div>
-            <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white">
-              <div class="flex items-center space-x-2 mb-2">
-                <span class="px-2 md:px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs">{{ event.category }}</span>
+              <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 md:px-3 py-1 rounded-full">
+                <span class="text-xs md:text-sm font-semibold text-purple-600">{{ event.price }}</span>
               </div>
-              <h3 class="text-xl md:text-2xl font-bold mb-2">{{ event.title }}</h3>
-              <div class="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm mb-3">
-                <div class="flex items-center space-x-1">
-                  <lucide-icon [img]="Calendar" [size]="14" [attr.md-size]="16"></lucide-icon>
-                  <span>{{ event.date }}</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 md:px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs">{{ event.category }}</span>
                 </div>
-                <div class="flex items-center space-x-1">
-                  <lucide-icon [img]="MapPin" [size]="14" [attr.md-size]="16"></lucide-icon>
-                  <span>{{ event.location }}</span>
+                <h3 class="text-xl md:text-2xl font-bold mb-2">{{ event.title }}</h3>
+                <div class="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm mb-3">
+                  <div class="flex items-center space-x-1">
+                    <lucide-icon [img]="Calendar" [size]="14" [attr.md-size]="16"></lucide-icon>
+                    <span>{{ event.date }}</span>
+                  </div>
+                  <div class="flex items-center space-x-1">
+                    <lucide-icon [img]="MapPin" [size]="14" [attr.md-size]="16"></lucide-icon>
+                    <span>{{ event.location }}</span>
+                  </div>
                 </div>
+                <button class="w-full bg-white/20 backdrop-blur-md hover:bg-white/30 text-white py-2 rounded-lg font-semibold transition flex items-center justify-center space-x-2 border border-white/30 shadow-lg text-sm md:text-base">
+                  <lucide-icon [img]="ShoppingCart" [size]="16" [attr.md-size]="18"></lucide-icon>
+                  <span>Comprar Ingresso</span>
+                </button>
               </div>
-              <button class="w-full bg-white/20 backdrop-blur-md hover:bg-white/30 text-white py-2 rounded-lg font-semibold transition flex items-center justify-center space-x-2 border border-white/30 shadow-lg text-sm md:text-base">
-                <lucide-icon [img]="ShoppingCart" [size]="16" [attr.md-size]="18"></lucide-icon>
-                <span>Comprar Ingresso</span>
-              </button>
             </div>
           </div>
-        </div>
+        }
       }
     </div>
 

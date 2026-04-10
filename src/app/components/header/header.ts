@@ -86,8 +86,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   async logout() {
-    await this.authService.logout();
-    this.router.navigate(['/']);
+    try {
+      await this.authService.logout();
+      // Recarregar a página para limpar todo o estado
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
   }
 
   toggleMenu() {

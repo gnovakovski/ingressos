@@ -6,6 +6,7 @@ import { MyTicketsComponent } from './pages/my-tickets/my-tickets';
 import { EventDetailsComponent } from './pages/event-details/event-details';
 import { TicketSelectionComponent } from './pages/ticket-selection/ticket-selection';
 import { PaymentComponent } from './pages/payment/payment';
+import { ValidateVoucherComponent } from './pages/validate-voucher/validate-voucher';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -23,8 +24,7 @@ export const routes: Routes = [
   },
   {
     path: 'meus-ingressos',
-    component: MyTicketsComponent,
-    canActivate: [authGuard]
+    component: MyTicketsComponent
   },
   {
     path: 'evento/:id',
@@ -32,13 +32,15 @@ export const routes: Routes = [
   },
   {
     path: 'evento/:id/ingressos',
-    component: TicketSelectionComponent,
-    canActivate: [authGuard]
+    component: TicketSelectionComponent
   },
   {
     path: 'pagamento',
-    component: PaymentComponent,
-    canActivate: [authGuard]
+    component: PaymentComponent
+  },
+  {
+    path: 'validar-voucher',
+    component: ValidateVoucherComponent
   },
   {
     path: '**',

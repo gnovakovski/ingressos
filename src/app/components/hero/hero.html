@@ -59,85 +59,46 @@
       </div>
       
       <div class="relative hidden md:block">
-        <div class="relative space-y-4">
-          <!-- Card de evento 1 -->
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl overflow-hidden border border-white/20 shadow-2xl transform hover:scale-105 transition">
-            <div class="relative h-32 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80');">
-              <div class="absolute inset-0 bg-black/40"></div>
-              <div class="relative flex items-center space-x-4 p-6 h-full">
-                <div class="w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(to bottom right, #10B981, #07532F);">
-                  <lucide-icon [img]="Music" class="text-white" [size]="32"></lucide-icon>
-                </div>
-                <div class="flex-1">
-                  <p class="font-bold text-white text-lg">Festival Eletrônica 2026</p>
-                  <div class="flex items-center space-x-2 text-purple-200 text-sm mt-1">
-                    <lucide-icon [img]="Calendar" [size]="14"></lucide-icon>
-                    <span>15 Mai</span>
-                    <span>•</span>
-                    <lucide-icon [img]="MapPin" [size]="14"></lucide-icon>
-                    <span>São Paulo</span>
-                  </div>
-                  <div class="flex items-center justify-between mt-2">
-                    <span class="font-bold" style="color: #fff;">A partir de R$ 120</span>
-                    <span class="bg-green-400 text-green-900 px-3 py-1 rounded-full text-xs font-bold">Disponível</span>
+        @if (loading) {
+          <div class="flex justify-center items-center h-96">
+            <lucide-icon [img]="Loader2" class="text-white animate-spin" [size]="48"></lucide-icon>
+          </div>
+        } @else if (events.length === 0) {
+          <div class="flex justify-center items-center h-96">
+            <p class="text-white text-lg">Nenhum evento disponível</p>
+          </div>
+        } @else {
+          <div class="relative space-y-4">
+            @for (event of events; track event.id) {
+              <div 
+                class="bg-white/10 backdrop-blur-md rounded-2xl overflow-hidden border border-white/20 shadow-2xl transform hover:scale-105 transition cursor-pointer"
+                (click)="navigateToEvent(event.id)">
+                <div class="relative h-32 bg-cover bg-center" [style.background-image]="'url(' + event.imageUrl + ')'">
+                  <div class="absolute inset-0 bg-black/40"></div>
+                  <div class="relative flex items-center space-x-4 p-6 h-full">
+                    <div class="w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(to bottom right, #10B981, #07532F);">
+                      <lucide-icon [img]="event.icon" class="text-white" [size]="32"></lucide-icon>
+                    </div>
+                    <div class="flex-1">
+                      <p class="font-bold text-white text-lg">{{ event.title }}</p>
+                      <div class="flex items-center space-x-2 text-purple-200 text-sm mt-1">
+                        <lucide-icon [img]="Calendar" [size]="14"></lucide-icon>
+                        <span>{{ event.date }}</span>
+                        <span>•</span>
+                        <lucide-icon [img]="MapPin" [size]="14"></lucide-icon>
+                        <span>{{ event.location }}</span>
+                      </div>
+                      <div class="flex items-center justify-between mt-2">
+                        <span class="font-bold" style="color: #fff;">{{ event.price }}</span>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold {{ event.statusColor }}">{{ event.status }}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            }
           </div>
-          
-          <!-- Card de evento 2 -->
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl overflow-hidden border border-white/20 shadow-2xl transform hover:scale-105 transition">
-            <div class="relative h-32 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=800&q=80');">
-              <div class="absolute inset-0 bg-black/40"></div>
-              <div class="relative flex items-center space-x-4 p-6 h-full">
-                <div class="w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(to bottom right, #10B981, #07532F);">
-                  <lucide-icon [img]="Guitar" class="text-white" [size]="32"></lucide-icon>
-                </div>
-                <div class="flex-1">
-                  <p class="font-bold text-white text-lg">Rock in Concert</p>
-                  <div class="flex items-center space-x-2 text-purple-200 text-sm mt-1">
-                    <lucide-icon [img]="Calendar" [size]="14"></lucide-icon>
-                    <span>22 Mai</span>
-                    <span>•</span>
-                    <lucide-icon [img]="MapPin" [size]="14"></lucide-icon>
-                    <span>Rio de Janeiro</span>
-                  </div>
-                  <div class="flex items-center justify-between mt-2">
-                    <span class="font-bold" style="color: #fff;">A partir de R$ 80</span>
-                    <span class="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold">Últimos</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Card de evento 3 -->
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl overflow-hidden border border-white/20 shadow-2xl transform hover:scale-105 transition">
-            <div class="relative h-32 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80');">
-              <div class="absolute inset-0 bg-black/40"></div>
-              <div class="relative flex items-center space-x-4 p-6 h-full">
-                <div class="w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0" style="background: linear-gradient(to bottom right, #10B981, #07532F);">
-                  <lucide-icon [img]="PartyPopper" class="text-white" [size]="32"></lucide-icon>
-                </div>
-                <div class="flex-1">
-                  <p class="font-bold text-white text-lg">Festa Neon Night</p>
-                  <div class="flex items-center space-x-2 text-gray-200 text-sm mt-1">
-                    <lucide-icon [img]="Calendar" [size]="14"></lucide-icon>
-                    <span>28 Mai</span>
-                    <span>•</span>
-                    <lucide-icon [img]="MapPin" [size]="14"></lucide-icon>
-                    <span>Belo Horizonte</span>
-                  </div>
-                  <div class="flex items-center justify-between mt-2">
-                    <span class="font-bold" style="color: #fff;">A partir de R$ 50</span>
-                    <span class="bg-green-400 text-green-900 px-3 py-1 rounded-full text-xs font-bold">Disponível</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        }
       </div>
     </div>
   </div>

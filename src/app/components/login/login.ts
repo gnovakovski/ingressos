@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Mail, Lock, Eye, EyeOff, LogIn, AlertCircle, Loader2 } from 'lucide-angular';
@@ -27,6 +27,8 @@ export class LoginComponent {
   loading = false;
   error = '';
 
+  private platformId = inject(PLATFORM_ID);
+
   constructor(
     private authService: AuthService,
     private router: Router
@@ -39,12 +41,16 @@ export class LoginComponent {
     try {
       await this.authService.login(this.email, this.password);
       
-      // Verificar se há uma URL de redirecionamento salva
-      const redirectUrl = sessionStorage.getItem('redirectUrl');
+      // Verificar se há uma URL de redirecionamento salva (apenas no browser)
+      let redirectUrl: string | null = null;
+      if (isPlatformBrowser(this.platformId)) {
+        redirectUrl = sessionStorage.getItem('redirectUrl');
+        if (redirectUrl) {
+          sessionStorage.removeItem('redirectUrl');
+        }
+      }
       
       if (redirectUrl) {
-        // Limpar a URL salva
-        sessionStorage.removeItem('redirectUrl');
         // Redirecionar para a URL original
         this.router.navigateByUrl(redirectUrl);
       } else {

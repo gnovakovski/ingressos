@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LucideAngularModule, CreditCard, ShoppingCart, CheckCircle, Loader2, Lock, Calendar, User as UserIcon, AlertCircle, ArrowLeft } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '../../services/firebase.config';
+import { EventService } from '../../services/event.service';
+import { VoucherService } from '../../services/voucher.service';
 
 interface TicketPerson {
   id: string;
@@ -51,7 +51,9 @@ export class PaymentComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private eventService: EventService,
+    private voucherService: VoucherService
   ) {}
 
   ngOnInit() {
@@ -131,11 +133,35 @@ export class PaymentComponent implements OnInit {
       // Simular processamento de pagamento (2 segundos)
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Aqui você integrará a API de pagamento no futuro
-      // const paymentResult = await paymentGateway.process({...});
+      // Buscar dados do evento
+      const event = await this.eventService.getEventById(this.eventId);
+      if (!event) {
+        throw new Error('Evento não encontrado');
+      }
 
-      // Salvar compra no Firestore
-      await this.savePurchaseToFirestore();
+      // Criar vouchers para cada ingresso
+      const tickets = this.selectedTickets.map(ticket => ({
+        ticketType: ticket.ticketTypeName,
+        ticketBatch: 'Primeiro Lote', // Você pode pegar isso do ticket se tiver
+        price: ticket.price,
+        participantName: ticket.name,
+        participantCpf: ticket.cpf,
+        participantBirthDate: ticket.birthDate,
+        ticketTypeId: ticket.ticketTypeId
+      }));
+
+      const user = this.authService.currentUser;
+      if (!user) throw new Error('Usuário não autenticado');
+
+      await this.voucherService.createVouchers(
+        user.uid,
+        this.eventId,
+        event.title,
+        event.date,
+        `${event.city} - ${event.state}`,
+        event.location,
+        tickets
+      );
 
       this.paymentSuccess = true;
       
@@ -154,33 +180,5 @@ export class PaymentComponent implements OnInit {
       this.error = 'Erro ao processar pagamento. Tente novamente.';
       this.processing = false;
     }
-  }
-
-  async savePurchaseToFirestore() {
-    const user = this.authService.currentUser;
-    if (!user) throw new Error('Usuário não autenticado');
-
-    const purchaseData = {
-      userId: user.uid,
-      buyerName: user.displayName || 'Usuário',
-      buyerEmail: user.email,
-      eventId: this.eventId,
-      eventTitle: this.eventTitle,
-      tickets: this.selectedTickets.map(ticket => ({
-        ticketTypeId: ticket.ticketTypeId,
-        ticketTypeName: ticket.ticketTypeName,
-        price: ticket.price,
-        participantName: ticket.name,
-        participantCpf: ticket.cpf,
-        participantBirthDate: ticket.birthDate
-      })),
-      quantity: this.selectedTickets.length,
-      totalPrice: this.totalPrice,
-      purchaseDate: Timestamp.now(),
-      paymentStatus: 'completed',
-      paymentMethod: 'credit_card' // Será atualizado quando integrar API real
-    };
-
-    await addDoc(collection(db, 'purchases'), purchaseData);
   }
 }

@@ -1,0 +1,53 @@
+<!-- Overlay -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" (click)="onClose()">
+  <!-- Modal -->
+  <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-md w-full border border-white/10" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b border-white/10">
+      <h2 class="text-2xl font-bold text-white">Login Necessário</h2>
+      <button 
+        (click)="onClose()"
+        class="p-2 hover:bg-white/10 rounded-lg transition">
+        <lucide-icon [img]="X" class="text-gray-400" [size]="20"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-4xl">🔒</span>
+        </div>
+        <p class="text-gray-300 text-lg mb-2">
+          Você precisa estar logado para continuar com a compra
+        </p>
+        <p class="text-gray-400 text-sm">
+          Faça login ou crie uma conta para prosseguir
+        </p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="space-y-3">
+        <button
+          (click)="goToLogin()"
+          class="w-full px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition flex items-center justify-center space-x-2">
+          <lucide-icon [img]="LogIn" [size]="20"></lucide-icon>
+          <span>Fazer Login</span>
+        </button>
+
+        <button
+          (click)="goToRegister()"
+          class="w-full px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold transition border border-white/20 flex items-center justify-center space-x-2">
+          <lucide-icon [img]="UserPlus" [size]="20"></lucide-icon>
+          <span>Criar Conta</span>
+        </button>
+
+        <button
+          (click)="onClose()"
+          class="w-full px-6 py-3 text-gray-400 hover:text-white transition text-sm">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
